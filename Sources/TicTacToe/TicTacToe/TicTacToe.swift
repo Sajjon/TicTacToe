@@ -22,9 +22,13 @@ public extension TicTacToe {
     mutating func play() throws -> Result? {
         defer { activePlayer.toggle() }
         
-        printBoard()
-        
-        let index = try readIndex(prompt: "\(activePlayer), which square:")
+        let index = repeatedReadIndex(
+            prompt: "\(activePlayer), which square:",
+            ifBadNumber: "☣️  Bad input",
+            ifSquareTaken: "⚠️  Square not free",
+            tipOnHowToExitProgram: "💡 You can quit this program by pressing: `CTRL + c`"
+        ) { board.isSquare(at: $0, .free) }
+            
         try board.play(index: index, by: activePlayer)
         
         if board.isFull() {
@@ -42,8 +46,44 @@ public extension TicTacToe {
 // MARK: Private
 private extension TicTacToe {
     
-    func readIndex(prompt: String) throws -> Board.Index {
+    func repeatedReadIndex(
+        prompt: String,
+        ifBadNumber messageIfBadNumber: String,
+        ifSquareTaken messageIfSquareTaken: String,
+        tipOnHowToExitProgram: String,
+        showTipOnHowToExitProgramAfterAttempts showExitTipThreshold: Int = 5,
+        _ isSquareFree: (Board.Index) -> Bool
+    ) -> Board.Index {
+        
+        var index: Board.Index?
+        var numberOfAttempts = 0
+        while index == nil {
+            defer {
+                numberOfAttempts += 1
+                if numberOfAttempts >= showExitTipThreshold {
+                    print(tipOnHowToExitProgram)
+                }
+            }
+            printBoard()
+            index = try? readIndex(prompt: prompt)
+            if let indexIndeed = index {
+                if !isSquareFree(indexIndeed) {
+                    print(messageIfSquareTaken)
+                    index = nil
+                }
+            } else {
+                print(messageIfBadNumber)
+            }
+            
+        }
+        return index!
+    }
+    
+    func readIndex(prompt: String) throws -> Board.Index? {
         print(prompt)
-        return try Board.Index(readInteger()! - 1)
+        guard let integer: Board.Index.IntegerLiteralType = readInteger() else {
+            return nil
+        }
+        return try Board.Index(integer - 1)
     }
 }

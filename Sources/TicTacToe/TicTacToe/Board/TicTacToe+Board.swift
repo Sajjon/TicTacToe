@@ -42,6 +42,13 @@ internal extension TicTacToe.Board {
         rowsOfColumns.allSatisfy({ $0.allSatisfy({ $0 != nil }) })
     }
     
+    func isSquare(at index: Index, _ query: Query) -> Bool {
+        switch query {
+        case .free: return self[index] == nil
+        case .taken: return self[index] != nil
+        }
+    }
+    
     // moar sugar
     subscript(row: Int, column: Int) -> Fill? {
         self[Index(row: row, column: column)]
@@ -58,6 +65,10 @@ internal extension TicTacToe.Board {
             let (row, column) = rowAndColumnFrom(index: index)
             rowsOfColumns[Int(row)][Int(column)] = newValue
         }
+    }
+    
+    enum Query {
+        case free, taken
     }
 }
 

@@ -15,12 +15,10 @@ extension UInt64: IntegerFromString {}
 
 func readInteger<I>() -> I? where I: IntegerFromString {
     guard let inputString = readLine(strippingNewline: true) else {
-        print("Failed to read string from input")
         return nil
     }
     
     guard let integer = I.init(inputString) else {
-        print("Failed to read integer from input")
         return nil
     }
     
