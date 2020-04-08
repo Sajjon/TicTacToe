@@ -25,15 +25,16 @@ public extension TicTacToe.Board {
         
         return [
                 [""],
-                threeByThreeSquares.enumerated().map { (rowIndex, row) in
+                rowsOfColumns.enumerated().map { (rowIndex, row) in
                     
                     return [
                         "|",
-                        row.enumerated().map { (columnIndex, maybeFill) -> String in
+                        row.enumerated().map { (column, maybeFill) -> String in
                             if let fill = maybeFill {
                                 return fill.rawValue
                             } else {
-                                return "\(columnIndex + (rowIndex * 3) + 1)"
+                                let index = Index(row: rowIndex, column: column)
+                                return "\(index.value + 1)"
                             }
                         }
                         .map { " \($0) " } // add space left right

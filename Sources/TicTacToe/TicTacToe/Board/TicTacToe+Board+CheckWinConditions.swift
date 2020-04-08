@@ -8,19 +8,20 @@
 import Foundation
 
 public extension TicTacToe.Board {
+    
      func winner() -> Player? {
          func hasPlayerWon(_ player: Player) -> Bool {
              // check 3 rows
-             for row in threeByThreeSquares {
+             for row in rowsOfColumns {
                  if row.allSatisfy({ $0 == player.fill }) {
                      return true
                  }
              }
              
              // check 3 columns
-             columnLoop: for columnIndex in 0..<3 {
-                 for rowIndex in 0..<3 {
-                     guard threeByThreeSquares[rowIndex][columnIndex] == player.fill else {
+             columnLoop: for column in 0..<3 {
+                 for row in 0..<3 {
+                     guard self[Index(row: row, column: column)] == player.fill else {
                          continue columnLoop
                      }
                  }
@@ -29,8 +30,7 @@ public extension TicTacToe.Board {
              
              // check 2 diagonals
              func check(diagonal: [Index]) -> Bool {
-                 precondition(diagonal.count == 3)
-                 return diagonal.allSatisfy({ self[$0] == player.fill })
+                diagonal.allSatisfy({ self[$0] == player.fill })
              }
              
              if check(diagonal: [2, 4, 6]) || check(diagonal: [0, 4, 8]) {

@@ -89,4 +89,55 @@ mutating func play() throws -> Result? {
         return board.winner().map { .win(by: $0) }
     }
 }
-````
+```
+
+### `Board` 
+
+```swift
+struct Board: Equatable, CustomStringConvertible {
+    
+    internal var rowsOfColumns: [[Fill?]] // `.cross`, `.nought` or `nil`
+    
+    internal init() {
+        rowsOfColumns = [[Fill?]](
+            repeating: [Fill?](
+                repeating: nil, count: 3
+            ), count: 3
+        )
+    }
+}
+```
+
+#### Got smarter win condition check? PR!
+
+```swift
+func hasPlayerWon(_ player: Player) -> Bool {
+    // check 3 rows
+    for row in rowsOfColumns {
+        if row.allSatisfy({ $0 == player.fill }) {
+            return true
+        }
+    }
+    
+    // check 3 columns
+    columnLoop: for column in 0..<3 {
+        for row in 0..<3 {
+            guard self[Index(row: row, column: column)] == player.fill else {
+                continue columnLoop
+            }
+        }
+        return true
+    }
+    
+    // check 2 diagonals
+    func check(diagonal: [Index]) -> Bool {
+       diagonal.allSatisfy({ self[$0] == player.fill })
+    }
+    
+    if check(diagonal: [2, 4, 6]) || check(diagonal: [0, 4, 8]) {
+        return true
+    }
+    
+    return false
+}
+```

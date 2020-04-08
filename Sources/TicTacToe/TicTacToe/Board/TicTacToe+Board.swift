@@ -10,11 +10,15 @@ import Foundation
 public extension TicTacToe {
     struct Board: Equatable, CustomStringConvertible {
         
-        internal var threeByThreeSquares = [[Fill?]](
-            repeating: [Fill?](
-                repeating: nil, count: 3
-            ), count: 3
-        )
+        internal var rowsOfColumns: [[Fill?]]
+        
+        internal init() {
+            rowsOfColumns = [[Fill?]](
+                repeating: [Fill?](
+                    repeating: nil, count: 3
+                ), count: 3
+            )
+        }
     }
 }
 
@@ -35,18 +39,18 @@ internal extension TicTacToe.Board {
     }
     
     func isFull() -> Bool {
-        threeByThreeSquares.allSatisfy({ $0.allSatisfy({ $0 != nil }) })
+        rowsOfColumns.allSatisfy({ $0.allSatisfy({ $0 != nil }) })
     }
     
     subscript(index: Index) -> Fill? {
         get {
             let (row, column) = rowAndColumnFrom(index: index)
-            return threeByThreeSquares[Int(row)][Int(column)]
+            return rowsOfColumns[Int(row)][Int(column)]
         }
         
         set {
             let (row, column) = rowAndColumnFrom(index: index)
-            threeByThreeSquares[Int(row)][Int(column)] = newValue
+            rowsOfColumns[Int(row)][Int(column)] = newValue
         }
     }
 }
