@@ -3,7 +3,7 @@
 ## Play
 
 ```sh
-swift run TicTacToe new
+swift run TicTacToe
 ```
 
 Which starts the game, presenting this beautiful ascii graphics:
