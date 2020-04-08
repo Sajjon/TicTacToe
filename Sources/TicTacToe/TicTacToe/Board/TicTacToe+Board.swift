@@ -42,6 +42,12 @@ internal extension TicTacToe.Board {
         rowsOfColumns.allSatisfy({ $0.allSatisfy({ $0 != nil }) })
     }
     
+    // moar sugar
+    subscript(row: Int, column: Int) -> Fill? {
+        self[Index(row: row, column: column)]
+    }
+    
+    // sugar
     subscript(index: Index) -> Fill? {
         get {
             let (row, column) = rowAndColumnFrom(index: index)

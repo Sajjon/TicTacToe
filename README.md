@@ -94,16 +94,18 @@ mutating func play() throws -> Result? {
 ### `Board` 
 
 ```swift
-struct Board: Equatable, CustomStringConvertible {
-    
-    internal var rowsOfColumns: [[Fill?]] // `.cross`, `.nought` or `nil`
-    
-    internal init() {
-        rowsOfColumns = [[Fill?]](
-            repeating: [Fill?](
-                repeating: nil, count: 3
-            ), count: 3
-        )
+public extension TicTacToe {
+    struct Board: Equatable, CustomStringConvertible {
+        
+        internal var rowsOfColumns: [[Fill?]] // `.cross`, `.nought` or `nil`
+        
+        internal init() {
+            rowsOfColumns = [[Fill?]](
+                repeating: [Fill?](
+                    repeating: nil, count: 3
+                ), count: 3
+            )
+        }
     }
 }
 ```
@@ -111,33 +113,46 @@ struct Board: Equatable, CustomStringConvertible {
 #### Got smarter win condition check? PR!
 
 ```swift
-func hasPlayerWon(_ player: Player) -> Bool {
-    // check 3 rows
-    for row in rowsOfColumns {
-        if row.allSatisfy({ $0 == player.fill }) {
-            return true
-        }
-    }
-    
-    // check 3 columns
-    columnLoop: for column in 0..<3 {
-        for row in 0..<3 {
-            guard self[Index(row: row, column: column)] == player.fill else {
-                continue columnLoop
+public extension TicTacToe.Board {
+    func hasPlayerWon(_ player: Player) -> Bool {
+        // check 3 rows
+        for row in rowsOfColumns {
+            if row.allSatisfy({ $0 == player.fill }) {
+                return true
             }
         }
-        return true
+        
+        // check 3 columns
+        columnLoop: for column in 0..<3 {
+            for row in 0..<3 {
+                guard self[Index(row: row, column: column)] == player.fill else {
+                    continue columnLoop
+                }
+            }
+            return true
+        }
+        
+        // check 2 diagonals
+        func check(diagonal: [Index]) -> Bool {
+           diagonal.allSatisfy({ self[$0] == player.fill })
+        }
+        
+        if check(diagonal: .mainDiagonal) || check(diagonal: .antiDiagonal) {
+            return true
+        }
+        
+        return false
     }
+}
+
+// Sugar
+private extension Array where Element == TicTacToe.Board.Index {
+    /// Main, Major, Principal, Primary; diagonal: ╲
+    /// from top left, to bottom right
+    static let mainDiagonal: [Element] = [2, 4, 6]
     
-    // check 2 diagonals
-    func check(diagonal: [Index]) -> Bool {
-       diagonal.allSatisfy({ self[$0] == player.fill })
-    }
-    
-    if check(diagonal: [2, 4, 6]) || check(diagonal: [0, 4, 8]) {
-        return true
-    }
-    
-    return false
+    /// Anti-, Minor, Counter, Secondary; diagonal: ╱
+    /// from bottom left, to top right
+    static let antiDiagonal: [Element] = [0, 4, 8]
 }
 ```
