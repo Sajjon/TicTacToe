@@ -8,7 +8,7 @@
 import Foundation
 
 public extension TicTacToe.Board {
-     func hasAnyoneWon() -> Player? {
+     func winner() -> Player? {
          func hasPlayerWon(_ player: Player) -> Bool {
              // check 3 rows
              for row in threeByThreeSquares {

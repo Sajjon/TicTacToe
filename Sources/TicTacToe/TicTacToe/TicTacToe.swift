@@ -8,38 +8,42 @@
 import Foundation
 
 public struct TicTacToe {
- 
-    private let matchUp: MatchUp
+    
     private var activePlayer: Player = .playerX
+    private var board: Board = .init()
     
-    private var state: Board = .init()
-    
-    public init(matchUp: MatchUp) {
-        self.matchUp = matchUp
+    public init(matchUp _ : MatchUp) {
+        // no AI support yet...
     }
 }
 
+// MARK: Public
 public extension TicTacToe {
-
-    /// Returns winning player, if game is over
     mutating func play() throws -> Result? {
         defer { activePlayer.toggle() }
-        printBoard()
-        print("Which index? >")
-        let index = try Board.Index(readInteger()! - 1)
-        try state.play(index: index, by: activePlayer)
         
-        if let winningPlayer = state.hasAnyoneWon() {
-            return .win(by: winningPlayer)
-        } else if state.isFull() {
+        printBoard()
+        
+        let index = try readIndex(prompt: "\(activePlayer), which square:")
+        try board.play(index: index, by: activePlayer)
+        
+        if board.isFull() {
             return .draw
         } else {
-            return nil
+            return board.winner().map { .win(by: $0) }
         }
     }
-
+    
     func printBoard() {
-        print("\n\nTurn: \(activePlayer)")
-        print(state)
+        print(board)
+    }
+}
+
+// MARK: Private
+private extension TicTacToe {
+    
+    func readIndex(prompt: String) throws -> Board.Index {
+        print(prompt)
+        return try Board.Index(readInteger()! - 1)
     }
 }

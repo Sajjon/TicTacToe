@@ -23,34 +23,21 @@ extension TicTacToeParser {
     )
 }
 
-//struct Options: ParsableArguments {
-//    @Flag(name: [.customLong("ai")], help: "Play vs AI (else PvP)")
-//    var vsAI: Bool
-//}
-
 extension TicTacToeParser {
     struct New: ParsableCommand {
         static var configuration =
             CommandConfiguration(abstract: "Starts a new tic tac toe game")
         
-//        // The `@OptionGroup` attribute includes the flags, options, and
-//        // arguments defined by another `ParsableArguments` type.
-//        @OptionGroup()
-//        var options: Options
-        
         func run() throws {
-//            print(options)
-//            var game = TicTacToe(
-//                matchUp: options.vsAI ? .humanVersusComputer(.easy) : .humanVersusHuman
-//            )
             var game = TicTacToe(matchUp: .humanVersusHuman)
             
-            var result: TicTacToe.Result?
+            var result: TicTacToe.Result!
             repeat {
                 result = try game.play()
             } while result == nil
+            
+            print("\n\(result!)")
             game.printBoard()
-            print(result!)
         }
     }
 }

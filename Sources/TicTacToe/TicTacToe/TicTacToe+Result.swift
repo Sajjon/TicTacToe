@@ -19,8 +19,8 @@ public extension TicTacToe {
 public extension TicTacToe.Result {
     var description: String {
         switch self {
-        case .draw: return "Game ended with a draw"
-        case .win(let winningPlayer): return "\(winningPlayer) won!"
+        case .draw: return "⚖️ Game ended with a draw"
+        case .win(let winningPlayer): return "🎉  \(winningPlayer) won!"
         }
     }
 }
