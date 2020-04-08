@@ -8,7 +8,7 @@
 import Foundation
 
 extension TicTacToe.Board {
-    struct Index: ExpressibleByIntegerLiteral {
+    struct Index: ExpressibleByIntegerLiteral, CaseIterable {
         
         /// Only allow values are: 0 - 8
         let value: IntegerLiteralType
@@ -20,6 +20,12 @@ extension TicTacToe.Board {
             self.value = value
         }
     }
+}
+
+// MARK: CaseIterable
+extension TicTacToe.Board.Index {
+    typealias AllCases = [Self]
+    static var allCases: AllCases = (0..<8).map(Self.init(integerLiteral:))
 }
 
 // MARK: ExpressibleByIntegerLiteral

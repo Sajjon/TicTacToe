@@ -10,43 +10,31 @@ import Foundation
 // MARK: Board ASCII
 public extension TicTacToe.Board {
     func ascii() -> String {
-        func rowSeparator(
-            leadingNewline: Bool = true,
-            trailingNewline: Bool = true
-        ) -> String {
-            
-            [
-                leadingNewline ? "\n" : "",
-                String(repeating: "-", count: 13),
-                trailingNewline ? "\n" : "",
-            ]
-            .joined()
+        
+        let rowSeparator = ["\n", String(repeating: "-", count: 13), "\n"].joined()
+     
+        func toString(row: Int, column: Int) -> String {
+            let index = Index(row: row, column: column)
+            return self[index].map({ $0.rawValue }) ?? "\(index.value + 1)"
         }
         
+        let body = rowsOfColumns.enumerated().map { (rowIndex, row) in
+            row
+                .enumerated()
+                .map { toString(row: rowIndex, column: $0.offset) }
+                .map { " \($0) " } // add space left right
+                .joined(separator: "|")
+        }
+        .map { "|\($0)" }
+        .joined(separator: "|\(rowSeparator)")
+        .appending("|")
+        
+        
         return [
-                [""],
-                rowsOfColumns.enumerated().map { (rowIndex, row) in
-                    
-                    return [
-                        "|",
-                        row.enumerated().map { (column, maybeFill) -> String in
-                            if let fill = maybeFill {
-                                return fill.rawValue
-                            } else {
-                                let index = Index(row: rowIndex, column: column)
-                                return "\(index.value + 1)"
-                            }
-                        }
-                        .map { " \($0) " } // add space left right
-                        .joined(separator: "|"),
-                        "|"
-                    ].joined()
-                    
-                },
-                [""]
-            ]
-                .flatMap { $0 }
-                .joined(separator: rowSeparator())
+            rowSeparator,
+            body,
+            rowSeparator
+        ]
+            .joined()
     }
-
 }
