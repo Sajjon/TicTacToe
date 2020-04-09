@@ -22,12 +22,12 @@ public extension TicTacToe {
     mutating func play() throws -> Result? {
         defer { activePlayer.toggle() }
         
-        let index = repeatedReadIndex(
+        let index = repeatedReadSquare(
             prompt: "\(activePlayer), which square:",
             ifBadNumber: "☣️  Bad input",
             ifSquareTaken: "⚠️  Square not free",
             tipOnHowToExitProgram: "💡 You can quit this program by pressing: `CTRL + c`"
-        ) { board.isSquare(at: $0, .free) }
+        ) { board.is(square: $0, .free) }
             
         try board.play(index: index, by: activePlayer)
         
@@ -46,16 +46,16 @@ public extension TicTacToe {
 // MARK: Private
 private extension TicTacToe {
     
-    func repeatedReadIndex(
+    func repeatedReadSquare(
         prompt: String,
         ifBadNumber messageIfBadNumber: String,
         ifSquareTaken messageIfSquareTaken: String,
         tipOnHowToExitProgram: String,
         showTipOnHowToExitProgramAfterAttempts showExitTipThreshold: Int = 5,
-        _ isSquareFree: (Board.Index) -> Bool
-    ) -> Board.Index {
+        _ isSquareFree: (Board.Square) -> Bool
+    ) -> Board.Square {
         
-        var index: Board.Index?
+        var index: Board.Square?
         var numberOfAttempts = 0
         while index == nil {
             defer {
@@ -65,7 +65,7 @@ private extension TicTacToe {
                 }
             }
             printBoard()
-            index = try? readIndex(prompt: prompt)
+            index = readSquare(prompt: prompt)
             if let indexIndeed = index {
                 if !isSquareFree(indexIndeed) {
                     print(messageIfSquareTaken)
@@ -79,11 +79,11 @@ private extension TicTacToe {
         return index!
     }
     
-    func readIndex(prompt: String) throws -> Board.Index? {
+    func readSquare(prompt: String) -> Board.Square? {
         print(prompt)
-        guard let integer: Board.Index.IntegerLiteralType = readInteger() else {
+        guard let integer: Board.Square.IntegerLiteralType = readInteger() else {
             return nil
         }
-        return try Board.Index(integer - 1)
+        return Board.Square(rawValue: integer - 1)
     }
 }

@@ -7,18 +7,10 @@
 
 import Foundation
 
+// MARK: Board
 public extension TicTacToe {
     struct Board: Equatable, CustomStringConvertible {
-        
-        internal var rowsOfColumns: [[Fill?]]
-        
-        internal init() {
-            rowsOfColumns = [[Fill?]](
-                repeating: [Fill?](
-                    repeating: nil, count: 3
-                ), count: 3
-            )
-        }
+        internal var fillAtSquare: [Square: Fill] = [:]
     }
 }
 
@@ -31,44 +23,43 @@ public extension TicTacToe.Board {
 
 // MARK: Internal
 internal extension TicTacToe.Board {
-    mutating func play(index: Index, by player: Player) throws {
+    mutating func play(index: Square, by player: Player) throws {
         guard self[index] == nil else {
             throw Error.squareAlreadyFilled
         }
         self[index] = player.fill
     }
-    
-    func isFull() -> Bool {
-        rowsOfColumns.allSatisfy({ $0.allSatisfy({ $0 != nil }) })
-    }
-    
-    func isSquare(at index: Index, _ query: Query) -> Bool {
-        switch query {
-        case .free: return self[index] == nil
-        case .taken: return self[index] != nil
-        }
-    }
-    
-    // moar sugar
-    subscript(row: Int, column: Int) -> Fill? {
-        self[Index(row: row, column: column)]
-    }
-    
+}
+
+// MARK: Query
+internal extension TicTacToe.Board {
     // sugar
-    subscript(index: Index) -> Fill? {
-        get {
-            let (row, column) = rowAndColumnFrom(index: index)
-            return rowsOfColumns[Int(row)][Int(column)]
-        }
+    subscript(square: Square) -> Fill? {
+        get { fillAtSquare[square] }
         
         set {
-            let (row, column) = rowAndColumnFrom(index: index)
-            rowsOfColumns[Int(row)][Int(column)] = newValue
+            precondition(`is`(square: square, .free))
+            fillAtSquare[square] = newValue
         }
+    }
+    
+    func isFull() -> Bool {
+        fillAtSquare.count == Square.allCases.count
+    }
+    
+    func hasPlayer(_ player: Player, filledSquare square: Square) -> Bool {
+        self[square] == player.fill
     }
     
     enum Query {
         case free, taken
+    }
+    
+    func `is`(square: Square, _ query: Query) -> Bool {
+        switch query {
+        case .free: return self[square] == nil
+        case .taken: return self[square] != nil
+        }
     }
 }
 
@@ -76,16 +67,5 @@ internal extension TicTacToe.Board {
 public extension TicTacToe.Board {
     var description: String {
         ascii()
-    }
-}
-
-// MARK: Private
-private extension TicTacToe.Board {
-    
-    func rowAndColumnFrom(index i: Index) -> (row: UInt8, column: UInt8) {
-        let index = i.value
-        let row = index / 3
-        let column = index % 3
-        return (row: UInt8(row), column: UInt8(column))
     }
 }
