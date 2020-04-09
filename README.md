@@ -76,19 +76,23 @@ func run() throws {
 
 ```swift
 mutating func play() throws -> Result? {
-    defer { activePlayer.toggle() }
-    
-    printBoard()
-    
-    let index = try readIndex(prompt: "\(activePlayer), which square:")
-    try board.play(index: index, by: activePlayer)
-    
-    if board.isFull() {
-        return .draw
-    } else {
-        return board.winner().map { .win(by: $0) }
+        defer { activePlayer.toggle() }
+        
+        let index = repeatedReadSquare(
+            prompt: "\(activePlayer), which square:",
+            ifBadNumber: "☣️  Bad input",
+            ifSquareTaken: "⚠️  Square not free",
+            tipOnHowToExitProgram: "💡 You can quit this program by pressing: `CTRL + c`"
+        ) { board.is(square: $0, .free) }
+            
+        try board.play(index: index, by: activePlayer)
+        
+        if board.isFull() {
+            return .draw
+        } else {
+            return board.winner().map { .win(by: $0) }
+        }
     }
-}
 ```
 
 ### `Board` 
@@ -96,16 +100,14 @@ mutating func play() throws -> Result? {
 ```swift
 public extension TicTacToe {
     struct Board: Equatable, CustomStringConvertible {
-        
-        internal var rowsOfColumns: [[Fill?]] // `.cross`, `.nought` or `nil`
-        
-        internal init() {
-            rowsOfColumns = [[Fill?]](
-                repeating: [Fill?](
-                    repeating: nil, count: 3
-                ), count: 3
-            )
-        }
+        internal var fillAtSquare: [Square: Fill] = [:]
+    }
+}
+
+extension TicTacToe.Board {
+    /// Squares 0 through 8
+    enum Square: UInt8, ExpressibleByIntegerLiteral, CaseIterable, Hashable {
+        case zero, one, two, three, four, five, six, seven, eight
     }
 }
 ```
@@ -115,33 +117,28 @@ public extension TicTacToe {
 ```swift
 public extension TicTacToe.Board {
     func ascii() -> String {
-        
-        let rowSeparator = ["\n", String(repeating: "-", count: 13), "\n"].joined()
-     
-        func toString(row: Int, column: Int) -> String {
-            let index = Index(row: row, column: column)
-            return self[index].map({ $0.rawValue }) ?? "\(index.value + 1)"
+        let rowSeparator: String = .init(repeating: "-", count: 13) + "\n"
+        var output = rowSeparator
+        for row in Self.rows {
+            defer { output += "\n" + rowSeparator }
+            output += row.map({ "| \(ascii(square: $0)) "}).joined() + "|"
         }
-        
-        let body = rowsOfColumns.enumerated().map { (rowIndex, row) in
-            row
-                .enumerated()
-                .map { toString(row: rowIndex, column: $0.offset) }
-                .map { " \($0) " } // add space left right
-                .joined(separator: "|")
-        }
-        .map { "|\($0)" }
-        .joined(separator: "|\(rowSeparator)")
-        .appending("|")
-        
-        
-        return [
-            rowSeparator,
-            body,
-            rowSeparator
-        ]
-            .joined()
+        return output
     }
+}
+
+private extension TicTacToe.Board {
+    func ascii(square: Square) -> String {
+        self[square].map({ $0.ascii }) ?? square.ascii
+    }
+}
+
+private extension TicTacToe.Board.Fill {
+    var ascii: String { rawValue }
+}
+
+private extension TicTacToe.Board.Square {
+    var ascii: String { "\(rawValue + 1)" }
 }
 
 ```
@@ -150,45 +147,54 @@ public extension TicTacToe.Board {
 
 ```swift
 public extension TicTacToe.Board {
-    func hasPlayerWon(_ player: Player) -> Bool {
-        // check 3 rows
-        for row in rowsOfColumns {
-            if row.allSatisfy({ $0 == player.fill }) {
-                return true
+    func winner() -> Player? {
+        func hasPlayerWon(_ player: Player) -> Bool {
+            func check(_ squareMatrix: [[Square]]) -> Bool {
+                squareMatrix.reduce(false, { hasWon, squareList in
+                    hasWon || squareList.allSatisfy({ hasPlayer(player, filledSquare: $0) })
+                })
             }
+            
+            return Self.winConditions.reduce(false, { hasWon, squareMatrix in
+                hasWon || check(squareMatrix)
+            })
         }
         
-        // check 3 columns
-        columnLoop: for column in 0..<3 {
-            for row in 0..<3 {
-                guard self[Index(row: row, column: column)] == player.fill else {
-                    continue columnLoop
-                }
-            }
-            return true
-        }
-        
-        // check 2 diagonals
-        func check(diagonal: [Index]) -> Bool {
-           diagonal.allSatisfy({ self[$0] == player.fill })
-        }
-        
-        if check(diagonal: .mainDiagonal) || check(diagonal: .antiDiagonal) {
-            return true
-        }
-        
-        return false
+        return Player.allCases.first(where: { hasPlayerWon($0) })
     }
 }
 
-// Sugar
-private extension Array where Element == TicTacToe.Board.Index {
+
+extension TicTacToe.Board {
+    
+    typealias Row       = [Square]
+    typealias Column    = [Square]
+    typealias Diagonal  = [Square]
+    
+    // MARK: Rows
+    static let firstRow:        Row = [0, 1, 2]
+    static let secondRow:       Row = [3, 4, 5]
+    static let thirdRow:        Row = [6, 7, 8]
+    static let rows:            [Row] = [firstRow, secondRow, thirdRow]
+    
+    // MARK: Columns
+    static let firstColumn:     Column = [0, 3, 6]
+    static let secondColumn:    Column = [1, 4, 7]
+    static let thirdColumn:     Column = [2, 5, 8]
+    static let columns:         [Column] = [firstColumn, secondColumn, thirdColumn]
+    
+    // MARK: Diagonals
+    
     /// Main, Major, Principal, Primary; diagonal: ╲
     /// from top left, to bottom right
-    static let mainDiagonal: [Element] = [2, 4, 6]
+    static let mainDiagonal:    Diagonal = [2, 4, 6]
     
     /// Anti-, Minor, Counter, Secondary; diagonal: ╱
     /// from bottom left, to top right
-    static let antiDiagonal: [Element] = [0, 4, 8]
+    static let antiDiagonal:    Diagonal = [0, 4, 8]
+    static let diagonals:       [Diagonal] = [mainDiagonal, antiDiagonal]
+    
+    static let winConditions: [[[Square]]] = [rows, columns, diagonals]
 }
+
 ```
