@@ -55,6 +55,10 @@ extension TicTacToeView.Model {
             fatalError("Unrecognized error: \(error)")
         }
     }
+    
+    func buttonText(square: Square) -> String {
+        game.board[square].map({ $0.rawValue }) ?? ""
+    }
 }
 
 // MARK: View
@@ -108,25 +112,42 @@ private extension TicTacToeView {
         }
     }
     
+    
     func gameView(geometry: GeometryProxy) -> some View {
         VStack {
             Text("Game number: \(self.model.gameNumber)").font(.subheadline)
             Text("Turn: \(self.model.game.activePlayer.description)").font(.headline)
             ForEach(TicTacToe.Board.rows, id: \.self) { row in
-                HStack {
-                    ForEach(row, id: \.self) { square in
-                        Button(
-                            action: {
-                                self.model.tryFill(square: square)
-                        },
-                            label: {
-                                Text("\(self.model.game.board.ascii(square: square))")
-                                    .font(.system(size: geometry.size.height/10))
+                VStack {
+                    Divider()
+                    HStack {
+                        ForEach(row, id: \.self) { square in
+                            HStack {
+                                Divider()
+                                
+                                Button(
+                                    action: {
+                                        self.model.tryFill(square: square)
+                                },
+                                    label: {
+                                        Text("\(self.model.buttonText(square: square))")
+                                            .font(.system(size: geometry.size.height/10))
+                                            .frame(width: geometry.size.height/10, height: geometry.size.height/10)
+                                            .padding(geometry.size.height/20)
+                                            .background(Color.white)
+                                            .foregroundColor(.black)
+                                    }
+                                )
+                                    .buttonStyle(PlainButtonStyle())
+                                
+                                
+                                if TicTacToe.Board.columns.last!.contains(square) {
+                                    Divider()
+                                }
+                            }
                         }
-                        )
-                            .buttonStyle(PlainButtonStyle())
-                            .padding(geometry.size.height/20)
                     }
+                    
                 }
             }
         }
