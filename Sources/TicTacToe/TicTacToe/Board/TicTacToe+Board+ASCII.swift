@@ -20,9 +20,9 @@ public extension TicTacToe.Board {
     }
 }
 
-private extension TicTacToe.Board {
-    func ascii(square: Square) -> String {
-        self[square].map({ $0.ascii }) ?? square.ascii
+extension TicTacToe.Board {
+    func ascii(square: Square, offset: UInt8 = 1) -> String {
+        self[square].map({ $0.ascii }) ?? square.ascii(offset: offset)
     }
 }
 
@@ -31,5 +31,5 @@ private extension TicTacToe.Board.Fill {
 }
 
 private extension TicTacToe.Board.Square {
-    var ascii: String { "\(rawValue + 1)" }
+    func ascii(offset: UInt8 = 1) -> String { "\(rawValue + offset)" }
 }

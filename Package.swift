@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "TicTacToe",
+    platforms: [
+        .macOS(.v10_15), .iOS(.v13)
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "0.0.4"),
     ],

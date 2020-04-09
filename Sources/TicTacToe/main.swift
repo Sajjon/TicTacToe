@@ -1,8 +1,7 @@
 import ArgumentParser
 
 // MARK: TicTacToeParser
-struct TicTacToeParser: ParsableCommand {
-}
+struct TicTacToeParser: ParsableCommand {}
 
 //  MARK: CommandConfiguration
 extension TicTacToeParser {
@@ -23,21 +22,37 @@ extension TicTacToeParser {
     )
 }
 
+struct Options: ParsableArguments {
+    @Flag(name: .customLong("ascii"), help: "If we want to use ASCII graphics instead of UI")
+    var useAsciiGraphics: Bool
+}
+
+
 extension TicTacToeParser {
     struct New: ParsableCommand {
         static var configuration =
             CommandConfiguration(abstract: "Starts a new tic tac toe game")
         
+        // The `@OptionGroup` attribute includes the flags, options, and
+        // arguments defined by another `ParsableArguments` type.
+        @OptionGroup()
+        var options: Options
+        
         func run() throws {
-            var game = TicTacToe(matchUp: .humanVersusHuman)
             
-            var result: TicTacToe.Result!
-            repeat {
-                result = try game.play()
-            } while result == nil
-            
-            print("\n\(result!)")
-            game.printBoard()
+            if options.useAsciiGraphics {
+                var game = TicTacToe(matchUp: .humanVersusHuman)
+                var result: TicTacToe.Result!
+                repeat {
+                    result = try game.playCLI()
+                } while result == nil
+                
+                print("\n\(result!)")
+                game.printBoard()
+            } else {
+                let view = TicTacToeView()
+                UserInterface.show(view: view)
+            }
         }
     }
 }

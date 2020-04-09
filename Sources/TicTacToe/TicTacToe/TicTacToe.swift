@@ -9,8 +9,8 @@ import Foundation
 
 public struct TicTacToe {
     
-    private var activePlayer: Player = .playerX
-    private var board: Board = .init()
+    var activePlayer: Player = .playerX
+    var board: Board = .init()
     
     public init(matchUp _ : MatchUp) {
         // no AI support yet...
@@ -19,18 +19,21 @@ public struct TicTacToe {
 
 // MARK: Public
 public extension TicTacToe {
-    mutating func play() throws -> Result? {
-        defer { activePlayer.toggle() }
+    mutating func playCLI() throws -> Result? {
         
-        let index = repeatedReadSquare(
+        let square = repeatedReadSquare(
             prompt: "\(activePlayer), which square:",
             ifBadNumber: "☣️  Bad input",
             ifSquareTaken: "⚠️  Square not free",
             tipOnHowToExitProgram: "💡 You can quit this program by pressing: `CTRL + c`"
         ) { board.is(square: $0, .free) }
             
-        try board.play(index: index, by: activePlayer)
-        
+        return try play(square: square)
+    }
+    
+    mutating func play(square: TicTacToe.Board.Square) throws -> Result? {
+        try board.playAt(square: square, by: activePlayer)
+        activePlayer.toggle()
         if board.isFull() {
             return .draw
         } else {

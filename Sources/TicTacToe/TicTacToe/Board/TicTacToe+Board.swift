@@ -23,11 +23,11 @@ public extension TicTacToe.Board {
 
 // MARK: Internal
 internal extension TicTacToe.Board {
-    mutating func play(index: Square, by player: Player) throws {
-        guard self[index] == nil else {
+    mutating func playAt(square: Square, by player: Player) throws {
+        guard self[square] == nil else {
             throw Error.squareAlreadyFilled
         }
-        self[index] = player.fill
+        self[square] = player.fill
     }
 }
 

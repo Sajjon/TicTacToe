@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum Player: UInt8, Equatable, CaseIterable {
+public enum Player: UInt8, Equatable, CaseIterable, CustomStringConvertible {
     case playerX
     case playerO
 }
@@ -21,6 +21,15 @@ public extension Player {
         switch self {
         case .playerO: return .nought
         case .playerX: return.cross
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .playerO:
+            return "Player O"
+        case .playerX:
+            return "Player X"
         }
     }
 }

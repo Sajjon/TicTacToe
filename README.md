@@ -2,9 +2,18 @@
 
 ## Play
 
-```sh
+### Window (SwiftUI shiny graphics)
+```
 swift run TicTacToe
 ```
+
+### CLI + ASCII graphics
+
+```sh
+swift run TicTacToe --ascii
+```
+(Just add the `--ascii` flag)
+
 
 Which starts the game, presenting this beautiful ascii graphics:
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension TicTacToe.Board {
+public extension TicTacToe.Board {
     /// Squares 0 through 8
     enum Square: UInt8, ExpressibleByIntegerLiteral, CaseIterable, Hashable {
         case zero, one, two, three, four, five, six, seven, eight
