@@ -76,23 +76,23 @@ func run() throws {
 
 ```swift
 mutating func play() throws -> Result? {
-        defer { activePlayer.toggle() }
+    defer { activePlayer.toggle() }
+    
+    let index = repeatedReadSquare(
+        prompt: "\(activePlayer), which square:",
+        ifBadNumber: "☣️  Bad input",
+        ifSquareTaken: "⚠️  Square not free",
+        tipOnHowToExitProgram: "💡 You can quit this program by pressing: `CTRL + c`"
+    ) { board.is(square: $0, .free) }
         
-        let index = repeatedReadSquare(
-            prompt: "\(activePlayer), which square:",
-            ifBadNumber: "☣️  Bad input",
-            ifSquareTaken: "⚠️  Square not free",
-            tipOnHowToExitProgram: "💡 You can quit this program by pressing: `CTRL + c`"
-        ) { board.is(square: $0, .free) }
-            
-        try board.play(index: index, by: activePlayer)
-        
-        if board.isFull() {
-            return .draw
-        } else {
-            return board.winner().map { .win(by: $0) }
-        }
+    try board.play(index: index, by: activePlayer)
+    
+    if board.isFull() {
+        return .draw
+    } else {
+        return board.winner().map { .win(by: $0) }
     }
+}
 ```
 
 ### `Board` 
