@@ -18,13 +18,16 @@ struct TicTacToeView {
 // MARK: Model
 extension TicTacToeView {
     final class Model: ObservableObject {
+        
         @Published
         var gameNumber = 1
         
         @Published
         var game = TicTacToe(matchUp: .humanVersusHuman)
+        
         @Published
         var result: TicTacToe.Result?
+        
         @Published
         var errorMessage: String?
     }
@@ -61,16 +64,7 @@ extension TicTacToeView: SwiftUI.View {
             VStack {
                 Group {
                     if self.model.errorMessage != nil {
-                        VStack {
-                            Text("\(self.model.errorMessage!)")
-                            
-                            Button(
-                                action: { self.model.errorMessage = nil },
-                                label: { Text("Dismiss").font(.callout) }
-                            )
-                                .buttonStyle(BorderedButtonStyle())
-                                .padding(30)
-                        }
+                        self.errorView
                     } else if self.model.result != nil {
                         self.gameOverView
                     } else {
@@ -82,8 +76,23 @@ extension TicTacToeView: SwiftUI.View {
     }
 }
 
-// MAR: SubViews
+// MARK: SubViews
 private extension TicTacToeView {
+    
+    var errorView: some View {
+        VStack {
+            Text("\(self.model.errorMessage!)")
+                .font(.largeTitle)
+                .multilineTextAlignment(.center)
+            
+            Button(
+                action: { self.model.errorMessage = nil },
+                label: { Text("Dismiss").font(.largeTitle) }
+            )
+                .buttonStyle(BorderedButtonStyle())
+                .padding(30)
+        }
+    }
     
     var gameOverView: some View {
         VStack {
@@ -101,8 +110,8 @@ private extension TicTacToeView {
     
     func gameView(geometry: GeometryProxy) -> some View {
         VStack {
-            Text("Game number: \(self.model.gameNumber)")
-            Text("Turn: \(self.model.game.activePlayer.description)").font(.callout)
+            Text("Game number: \(self.model.gameNumber)").font(.subheadline)
+            Text("Turn: \(self.model.game.activePlayer.description)").font(.headline)
             ForEach(TicTacToe.Board.rows, id: \.self) { row in
                 HStack {
                     ForEach(row, id: \.self) { square in
