@@ -10,13 +10,22 @@ import Foundation
 // MARK: Board ASCII
 public extension TicTacToe.Board {
     func ascii() -> String {
-        let rowSeparator: String = .init(repeating: "-", count: 13) + "\n"
-        var output = rowSeparator
-        for row in Self.rows {
-            defer { output += "\n" + rowSeparator }
-            output += row.map({ "| \(ascii(square: $0)) "}).joined() + "|"
-        }
+        let rowSeparator: String = "\n───┼───┼───\n"
+        var output = "\n"
+        output += ascii(row: Self.firstRow)
+        output += rowSeparator
+        output += ascii(row: Self.secondRow)
+        output += rowSeparator
+        output += ascii(row: Self.thirdRow)
         return output
+    }
+}
+
+private extension TicTacToe.Board {
+    func ascii(row: Row) -> String {
+        " " + ascii(square: row[0]) + " │ "
+            + ascii(square: row[1]) + " │ "
+            + ascii(square: row[2])
     }
 }
 
