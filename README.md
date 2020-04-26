@@ -9,13 +9,11 @@ swift run TicTacToe
 Which starts the game, presenting this beautiful ascii graphics:
 
 ```bash
--------------
-| 1 | 2 | 3 |
--------------
-| 4 | 5 | 6 |
--------------
-| 7 | 8 | 9 |
--------------
+ 1 │ 2 │ 3
+───┼───┼───
+ 4 │ 5 │ 6
+───┼───┼───
+ 7 │ 8 │ 9
 
 playerX, which square:
 ```
@@ -24,29 +22,29 @@ And since this is the most pointless game in the history of games, get used to s
 
 ```bash
 ⚖️ Game ended with a draw
--------------
-| ✖ | ◯ | ✖ |
--------------
-| ◯ | ✖ | ◯ |
--------------
-| ✖ | ✖ | ◯ |
--------------
+
+
+ o │ x │ x
+───┼───┼───
+ x │ x │ o
+───┼───┼───
+ o │ o │ x
 ```
 
 And in some rare cases where your partner had one to many 🍺 you might see this:
 
 ```bash
 playerX, which square:
-7
+9
 
 🎉  playerX won!
--------------
-| ✖ | ◯ | ✖ |
--------------
-| ◯ | ✖ | ◯ |
--------------
-| ✖ | 8 | 9 |
--------------
+
+
+ x │ o │ o
+───┼───┼───
+ 4 │ x │ 6
+───┼───┼───
+ 7 │ 8 │ x
 ```
 
 
@@ -113,17 +111,18 @@ extension TicTacToe.Board {
 ```swift
 public extension TicTacToe.Board {
     func ascii() -> String {
-        let rowSeparator: String = .init(repeating: "-", count: 13) + "\n"
-        var output = rowSeparator
-        for row in Self.rows {
-            defer { output += "\n" + rowSeparator }
-            output += row.map({ "| \(ascii(square: $0)) "}).joined() + "|"
-        }
-        return output
+        Self.rows
+            .map(ascii(row:))
+            .joined(separator: "\n───┼───┼───\n")
     }
 }
 
 private extension TicTacToe.Board {
+    
+    func ascii(row: Row) -> String {
+        " " + row.map(ascii(square:)).joined(separator: " │ ")
+    }
+
     func ascii(square: Square) -> String {
         self[square].map({ $0.ascii }) ?? square.ascii
     }
@@ -136,6 +135,7 @@ private extension TicTacToe.Board.Fill {
 private extension TicTacToe.Board.Square {
     var ascii: String { "\(rawValue + 1)" }
 }
+
 
 ```
 
