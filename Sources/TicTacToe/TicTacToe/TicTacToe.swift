@@ -39,7 +39,7 @@ public extension TicTacToe {
     }
     
     func printBoard() {
-        print(board)
+        print("\n\n\(board)\n")
     }
 }
 

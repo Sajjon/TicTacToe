@@ -9,18 +9,20 @@ import Foundation
 
 // MARK: Board ASCII
 public extension TicTacToe.Board {
+
     func ascii() -> String {
-        let rowSeparator: String = .init(repeating: "-", count: 13) + "\n"
-        var output = rowSeparator
-        for row in Self.rows {
-            defer { output += "\n" + rowSeparator }
-            output += row.map({ "| \(ascii(square: $0)) "}).joined() + "|"
-        }
-        return output
+        Self.rows
+            .map(ascii(row:))
+            .joined(separator: "\n───┼───┼───\n")
     }
 }
 
 private extension TicTacToe.Board {
+    
+    func ascii(row: Row) -> String {
+        " " + row.map(ascii(square:)).joined(separator: " │ ")
+    }
+
     func ascii(square: Square) -> String {
         self[square].map({ $0.ascii }) ?? square.ascii
     }
