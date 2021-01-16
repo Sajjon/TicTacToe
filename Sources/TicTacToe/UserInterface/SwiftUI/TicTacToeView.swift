@@ -67,12 +67,10 @@ extension TicTacToeView: SwiftUI.View {
         GeometryReader { geometry in
             VStack {
                 Group {
-                    if self.model.errorMessage != nil {
-                        self.errorView
-                    } else if self.model.result != nil {
-                        self.gameOverView
-                    } else {
-                        self.gameView(geometry: geometry)
+                    switch state {
+                    case .gameOver: gameOverView
+                    case .playingGame: gameView(geometry: geometry)
+                    case .showingError: errorView
                     }
                 }
             }.frame(width: geometry.size.width, height: geometry.size.height)
@@ -82,6 +80,22 @@ extension TicTacToeView: SwiftUI.View {
 
 // MARK: SubViews
 private extension TicTacToeView {
+    enum State {
+        case gameOver
+        case playingGame
+        case showingError
+    }
+    var state: State {
+        if model.result != nil {
+            return .gameOver
+        } else {
+            if model.errorMessage != nil {
+                return .showingError
+            } else {
+                return .playingGame
+            }
+        }
+    }
     
     var errorView: some View {
         VStack {
